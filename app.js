@@ -1,38 +1,14 @@
 import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import commentRoutes from "./routes/comment.js";
-
-dotenv.config();
+import comments from "./routes/comments.js";
+import startServer from "./utils/startServer.js";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/Task2";
 
-// Middleware
+app.use(cors());
 app.use(express.json());
+app.use("/comments", comments);
 
-// Routes
-app.use("/api", commentRoutes);
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("MongoDB Connected");
-  } catch (error) {
-    console.error("MongoDB Connection Error:", error);
-    process.exit(1);
-  }
-};
-
-const startServer = async () => {
-  await connectDB();
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-};
-
-startServer();
+startServer(app, PORT, MONGO_URI);
